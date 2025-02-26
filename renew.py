@@ -15,7 +15,7 @@ from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
-
+from notify import send_notification
 
 def get_hosts():
     return browser \
@@ -214,6 +214,7 @@ if __name__ == "__main__":
             exit_with_error(message="Could not load NO-IP hostnames page.")
 
         # Confirm hosts
+        confirmed_domains = [] # Initialize the array containing domains
         try:
             hosts = get_hosts()
             print("Confirming hosts phase")
@@ -230,6 +231,7 @@ if __name__ == "__main__":
                 if button.text == "Confirm" or translate(button.text) == "Confirm":
                     button.click()
                     confirmed_hosts += 1
+                    confirmed_domains.append(current_host) # Append current host to confirmed_domains array
                     print("Host \"" + current_host + "\" confirmed")
                     sleep(0.25)
 
@@ -237,6 +239,16 @@ if __name__ == "__main__":
                 print("1 host confirmed")
             else:
                 print(str(confirmed_hosts) + " hosts confirmed")
+
+            # Function to send notification if domains were confirmed
+            if confirmed_domains:
+                notification_uri = os.getenv("NOTIFICATION_URI")
+                if notification_uri:
+                    send_notification(
+                        notification_uri,
+                        title="Domain Renewed ✅",
+                        message="The following domain(s) were successfully renewed: " + ", ".join(confirmed_domains)
+                    )
 
             print("Finished")
 
