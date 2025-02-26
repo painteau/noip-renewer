@@ -15,5 +15,6 @@ COPY --from=0 /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
 
 ADD renew.py .
+ADD notify.py .
 
 ENTRYPOINT ["python3", "renew.py"]
